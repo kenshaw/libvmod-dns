@@ -6,53 +6,63 @@ libvmod_dns
 Varnish Example Module
 ----------------------
 
-:Author: Martin Blix Grydeland
-:Date: 2011-05-26
-:Version: 1.0
+:Author: Kenneth Shaw
+:Date: 2013-04-01
+:Version: 0.1
 :Manual section: 3
 
 SYNOPSIS
 ========
 
-import example;
+import dns;
 
 DESCRIPTION
 ===========
 
-Example Varnish vmod demonstrating how to write an out-of-tree Varnish vmod.
-
-Implements the traditional Hello World as a vmod.
+Provides some DNS functions to Varnish.
 
 FUNCTIONS
 =========
 
-hello
+resolve
 -----
 
 Prototype
         ::
 
-                hello(STRING S)
+                resolve(STRING str)
 Return value
 	STRING
 Description
-	Returns "Hello, " prepended to S
+	Resolves the hostname to its dns entry
 Example
         ::
 
-                set resp.http.hello = example.hello("World");
+                set resp.http.x-dns-example = dns.resolve("www.example.com");
+rresolve
+-----
+
+Prototype
+        ::
+
+                rresolve(STRING str)
+Return value
+	STRING
+Description
+	Reverse resolve an IP
+Example
+        ::
+
+                set resp.http.x-dns-reverse = dns.rresolve("127.0.0.1");
 
 INSTALLATION
 ============
 
-This is an example skeleton for developing out-of-tree Varnish
-vmods. It implements the "Hello, World!" as a vmod callback. Not
-particularly useful in good hello world tradition, but demonstrates how
-to get the glue around a vmod working.
+This vmod is based off the libvmod-example source, and thus works / compiles
+in the same fashion.
 
-The source tree is based on autotools to configure the building, and
-does also have the necessary bits in place to do functional unit tests
-using the varnishtest tool.
+This vmod was originally built with the intention of detecting bots with bad
+User-Agent strings. See the example below.
 
 Usage::
 
@@ -73,24 +83,40 @@ Make targets:
 * make check - runs the unit tests in ``src/tests/*.vtc``
 
 In your VCL you could then use this vmod along the following lines::
-        
-        import example;
 
-        sub vcl_deliver {
-                # This sets resp.http.hello to "Hello, World"
-                set resp.http.hello = example.hello("World");
+        import dns;
+
+        # do a dns check on "good" crawlers
+        sub vcl_recv {
+            if (req.http.user-agent ~ "(?i)(googlebot|bingbot|slurp|teoma)") {
+                # do a reverse lookup on the client.ip (X-Forwarded-For) and check that its in the allowed domains
+                set req.http.X-Crawler-DNS-Reverse = dns.rresolve(req.http.X-Forwarded-For);
+
+                # check that the RDNS points to an allowed domain -- 403 error if it doesn't
+                if (req.http.X-Crawler-DNS-Reverse !~ "(?i)\.(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
+                    error 403 "Forbidden";
+                }
+
+                # do a forward lookup on the DNS
+                set req.http.X-Crawler-DNS-Forward = dns.resolve(req.http.X-Crawler-DNS-Reverse);
+
+                # if the client.ip/X-Forwarded-For doesn't match, then the user-agent is fake
+                if (req.http.X-Crawler-DNS-Forward != req.http.X-Forwarded-For) {
+                    error 403 "Forbidden";
+                }
+            }
         }
 
 HISTORY
 =======
 
-This manual page was released as part of the libvmod-example package,
-demonstrating how to create an out-of-tree Varnish vmod.
+This module was created in an effort to detect/prevent/stop clients User-Agent
+strings claiming to be googlebot/msnbot/etc.
 
 COPYRIGHT
 =========
 
 This document is licensed under the same license as the
-libvmod-example project. See LICENSE for details.
+libvmod-dns project. See LICENSE for details.
 
-* Copyright (c) 2011 Varnish Software
+* Copyright (c) 2013 Kenneth Shaw
