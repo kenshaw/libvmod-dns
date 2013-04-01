@@ -48,7 +48,7 @@ sub vcl_recv {
     # do a dns check on "good" crawlers
     if (req.http.user-agent ~ "(?i)(googlebot|bingbot|slurp|teoma)") {
         # do a reverse lookup on the client.ip (X-Forwarded-For) and check that its in the allowed domains
-        set req.http.X-Crawler-DNS-Reverse = dns.rresolve(req.http.X-Forwarded-For, 25);
+        set req.http.X-Crawler-DNS-Reverse = dns.rresolve(req.http.X-Forwarded-For);
 
         # check that the RDNS points to an allowed domain -- 403 error if it doesn't
         if (req.http.X-Crawler-DNS-Reverse !~ "(?i)(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
@@ -56,7 +56,7 @@ sub vcl_recv {
         }
 
         # do a forward lookup on the DNS
-        set req.http.X-Crawler-DNS-Forward = dns.resolve(req.http.X-Crawler-DNS-Reverse, 25);
+        set req.http.X-Crawler-DNS-Forward = dns.resolve(req.http.X-Crawler-DNS-Reverse);
 
         # if the client.ip/X-Forwarded-For doesn't match, then the user-agent is fake 
         if (req.http.X-Crawler-DNS-Forward != req.http.X-Forwarded-For) {
