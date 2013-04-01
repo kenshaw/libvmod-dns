@@ -12,3 +12,8 @@ sample seen (good):
 ```
 
 sample seen (bad):
+
+
+example tests:
+
+curl -v -H 'User-Agent: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)' -H 'X-Forwarded-For: 66.249.74.110' 'http://localhost:6081/'

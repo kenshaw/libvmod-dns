@@ -51,7 +51,7 @@ sub vcl_recv {
         set req.http.X-Crawler-DNS-Reverse = dns.rresolve(req.http.X-Forwarded-For);
 
         # check that the RDNS points to an allowed domain -- 403 error if it doesn't
-        if (req.http.X-Crawler-DNS-Reverse !~ "(?i)(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
+        if (req.http.X-Crawler-DNS-Reverse !~ "(?i)\.(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
             error 403 "Forbidden";
         }
 
