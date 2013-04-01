@@ -65,8 +65,10 @@ vmod_rresolve(struct sess *sp, const char *str) {
     char *s;
 	unsigned u, v;
 
-	u = WS_Reserve(sp->wrk->ws, 0); /* Reserve some work space */
-	s = sp->wrk->ws->f;		/* Front of workspace area */
+    /* Reserve some work space */
+	u = WS_Reserve(sp->wrk->ws, 0);
+    /* Front of workspace area */
+	s = sp->wrk->ws->f;
 	v = snprintf(s, u, "%s", node);
 	v++;
 	if (v > u) {
