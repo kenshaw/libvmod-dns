@@ -67,6 +67,7 @@ vmod_rresolve(struct sess *sp, const char *str) {
 
     /* Reserve some work space */
 	u = WS_Reserve(sp->wrk->ws, 0);
+
     /* Front of workspace area */
 	s = sp->wrk->ws->f;
 	v = snprintf(s, u, "%s", node);
