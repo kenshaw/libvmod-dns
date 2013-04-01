@@ -37,5 +37,5 @@ rm -rf %{buildroot}
 %{_mandir}/man?/*
 
 %changelog
-* Tue Nov 14 2012 Lasse Karstensen <lasse@varnish-software.com> - 0.1-0.20121114
+* Mon Apr 01 2013 Kenneth Shaw <kenshaw@gmail.com> - 0.1-0.20130401
 - Initial version.
