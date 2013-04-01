@@ -1,19 +1,19 @@
-Summary: Example VMOD for Varnish
-Name: vmod-varnish-%{VARNISHVER}-example
+Summary: DNS VMOD for Varnish
+Name: vmod-varnish-%{VARNISHVER}-dns
 Version: 0.1
 Release: 1%{?dist}
 License: BSD
 Group: System Environment/Daemons
-Source0: libvmod-example.tar.gz
+Source0: libvmod-dns.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: varnish > 3.0
 BuildRequires: make, python-docutils
 
 %description
-Example VMOD
+DNS VMOD
 
 %prep
-%setup -n libvmod-example
+%setup -n libvmod-dns
 
 %build
 # this assumes that VARNISHSRC is defined on the rpmbuild command line, like this:

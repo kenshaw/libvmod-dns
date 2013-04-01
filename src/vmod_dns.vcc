@@ -1,3 +1,3 @@
-Module example
+Module dns 
 Init init_function
 Function STRING hello(STRING)
