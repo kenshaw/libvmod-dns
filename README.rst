@@ -3,7 +3,7 @@ libvmod_dns
 ============
 
 ----------------------
-Varnish Example Module
+Varnish DNS Module
 ----------------------
 
 :Author: Kenneth Shaw
