@@ -77,11 +77,13 @@ vmod_rresolve(struct sess *sp, const char *str) {
     s = sp->wrk->ws->f;
     v = snprintf(s, u, "%s", node);
     v++;
+
     if (v > u) {
         /* No space, reset and leave */
         WS_Release(sp->wrk->ws, 0);
         return NULL;
     }
+
     /* Update work space with what we've used */
     WS_Release(sp->wrk->ws, v);
     return s;
