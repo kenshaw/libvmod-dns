@@ -68,6 +68,27 @@ Usage::
 
  ./configure VARNISHSRC=DIR [VMODDIR=DIR]
 
+
+If you are installing this on a Debian or Debian-derivative, and using the
+[Debian packages](https://www.varnish-cache.org/installation/debian), then
+doing the following (as root) should be all that is necessary to build and
+install this VMOD::
+
+ # change to working source directory
+ cd /usr/local/src
+
+ # get varnish and libvmod-dns
+ apt-get source varnish
+ git clone https://github.com/kenshaw/libvmod-dns
+
+ # build libvmod-dns
+ cd libvmod-dns
+ ./configure VARNISHSRC=/usr/local/src/varnish-<VERSION> VMODDIR=/usr/lib/varnish/vmods
+
+ # install
+ make && make install
+
+
 `VARNISHSRC` is the directory of the Varnish source tree for which to
 compile your vmod. Both the `VARNISHSRC` and `VARNISHSRC/include`
 will be added to the include search paths for your module.
