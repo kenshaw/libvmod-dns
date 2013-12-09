@@ -69,6 +69,21 @@ Usage::
  ./configure VARNISHSRC=DIR [VMODDIR=DIR]
 
 
+`VARNISHSRC` is the directory of the Varnish source tree for which to
+compile your vmod. Both the `VARNISHSRC` and `VARNISHSRC/include`
+will be added to the include search paths for your module.
+
+Optionally you can also set the vmod install directory by adding
+`VMODDIR=DIR` (defaults to the pkg-config discovered directory from your
+Varnish installation).
+
+Make targets:
+
+* make - builds the vmod
+* make install - installs your vmod in `VMODDIR`
+* make check - runs the unit tests in ``src/tests/*.vtc``
+
+
 If you are installing this on a Debian or Debian-derivative, and using the
 [Debian packages](https://www.varnish-cache.org/installation/debian), then
 doing the following (as root) should be all that is necessary to build and
@@ -88,20 +103,6 @@ install this VMOD::
  # install
  make && make install
 
-
-`VARNISHSRC` is the directory of the Varnish source tree for which to
-compile your vmod. Both the `VARNISHSRC` and `VARNISHSRC/include`
-will be added to the include search paths for your module.
-
-Optionally you can also set the vmod install directory by adding
-`VMODDIR=DIR` (defaults to the pkg-config discovered directory from your
-Varnish installation).
-
-Make targets:
-
-* make - builds the vmod
-* make install - installs your vmod in `VMODDIR`
-* make check - runs the unit tests in ``src/tests/*.vtc``
 
 In your VCL you could then use this vmod along the following lines::
 
