@@ -1,3 +1,3 @@
-Module dns 
-Function STRING resolve(STRING)
-Function STRING rresolve(STRING)
+$Module dns 3
+$Function STRING resolve(STRING)
+$Function STRING rresolve(STRING)
