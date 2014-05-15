@@ -1,8 +1,8 @@
-INCLUDES = -I$(VARNISHSRC)/include -I$(VARNISHSRC)
 
 vmoddir = $(VMODDIR)
 vmod_LTLIBRARIES = libvmod_dns.la
 
+libvmod_dns_la_CFLAGS = -I$(VARNISHSRC)/include -I$(VARNISHSRC)
 libvmod_dns_la_LDFLAGS = -module -export-dynamic -avoid-version -shared
 
 libvmod_dns_la_SOURCES = \
