@@ -10,7 +10,8 @@ varnish v1 -vcl+backend {
 
   sub vcl_deliver {
     set resp.http.resolve1 = dns.resolve("google-public-dns-a.google.com");
-    set resp.http.resolve2 = dns.resolve("google-public-dns-b.google.com");
+    set resp.http.resolve2 = dns.resolve("ipv6.google.com");
+    set resp.http.resolve3 = dns.resolve("foo.bar");
   }
 } -start
 
@@ -18,7 +19,8 @@ client c1 {
   txreq -url "/"
   rxresp
   expect resp.http.resolve1 == "8.8.8.8"
-  expect resp.http.resolve2 == "8.8.4.4"
+  expect resp.http.resolve2 != ""
+  expect resp.http.resolve3 == ""
 }
 
 client c1 -run
