@@ -37,7 +37,8 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([sys/stdlib.h])
 
 # Check for python
-AC_CHECK_PROGS(PYTHON, [python3 python3.1 python3.2 python2.7 python2.6 python2.5 python2 python], [AC_MSG_ERROR([Python is needed to build this vmod, please install python.])])
+AC_CHECK_PROGS(PYTHON, [python3 python3.1 python3.2 python2.7 python2.6 python2.5 python2 python])
+test -z "$PYTHON" && AC_MSG_ERROR([Python is needed to build this vmod, please install python.])
 
 # Varnish source tree
 AC_ARG_VAR([VARNISHSRC], [path to Varnish source tree (mandatory)])

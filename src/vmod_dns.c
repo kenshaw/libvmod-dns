@@ -1,90 +1,70 @@
-#include <stdlib.h>
-
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-
-#ifdef __FreeBSD__
-#include <netinet/in.h>
 #include <stdio.h>
-#endif
+#include <stdlib.h>
 
 #include "vrt.h"
 #include "bin/varnishd/cache.h"
 
 #include "vcc_if.h"
 
-#ifndef   NI_MAXHOST
-#define   NI_MAXHOST 1025
-#endif
 
-int
-init_function(struct vmod_priv *priv, const struct VCL_conf *conf) {
-    return (0);
+const char *
+vmod_resolve(struct sess *sp, const char *hostname)
+{
+	const struct sockaddr_in *si4;
+	const struct sockaddr_in6 *si6;
+	struct addrinfo *res;
+	const void *addr;
+	char *p;
+	int len;
+
+	CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
+
+	if (getaddrinfo(hostname, NULL, NULL, &res))
+		return (NULL);
+
+	switch (res->ai_family) {
+	case AF_INET:
+		len = INET_ADDRSTRLEN;
+		si4 = (const void *)res->ai_addr;
+		addr = &(si4->sin_addr);
+		break;
+	case AF_INET6:
+		len = INET6_ADDRSTRLEN;
+		si6 = (const void *)res->ai_addr;
+		addr = &(si6->sin6_addr);
+		break;
+	default:
+		INCOMPL();
+	}
+
+	XXXAN(len);
+	AN(p = WS_Alloc(sp->wrk->ws, len));
+	AN(inet_ntop(res->ai_family, addr, p, len));
+
+	freeaddrinfo(res);
+	return (p);
 }
 
 const char *
-vmod_resolve(struct sess *sp, const char *str) {
-    int error;
-    struct addrinfo *ai;
+vmod_rresolve(struct sess *sp, const char *hostname)
+{
+	char node[NI_MAXHOST];
+	struct addrinfo *res;
+	char *p = NULL;
 
-    /* resolve the domain name */
-    error = getaddrinfo(str, NULL, NULL, &ai);
-    if (error != 0 || ai == NULL) {
-        /* encountered an error, return empty string */
-        return NULL;
-    }
+	CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
 
-    char s[1024] = "";
+	if (getaddrinfo(hostname, NULL, NULL, &res))
+		return (NULL);
 
-    /* otherwise, we have a result */
-    switch (ai->ai_addr->sa_family) {
-        case AF_INET:
-            inet_ntop(AF_INET, &(((struct sockaddr_in *) ai->ai_addr)->sin_addr), s, 1024);
-            break;
+	if (!getnameinfo(res->ai_addr, res->ai_addrlen, node,
+	    sizeof(node), NULL, 0, 0))
+		p = WS_Dup(sp->wrk->ws, node);
 
-        case AF_INET6:
-            inet_ntop(AF_INET6, &(((struct sockaddr_in6 *) ai->ai_addr)->sin6_addr), s, 1024);
-            break;
-
-        defult:
-            return NULL;
-    }
-
-    return s;
-}
-
-const char *
-vmod_rresolve(struct sess *sp, const char *str) {
-    struct sockaddr_in sa;
-
-    sa.sin_family = AF_INET;
-    inet_pton(AF_INET, str, &sa.sin_addr);
-
-    char node[NI_MAXHOST];
-    int res = getnameinfo((struct sockaddr*) &sa, sizeof(sa), node, sizeof(node), NULL, 0, 0);
-    if (res != 0) {
-        /* encountered an error, return empty string */
-        return NULL;
-    }
-
-    char *s;
-    unsigned u, v;
-
-    /* Reserve some work space */
-    u = WS_Reserve(sp->wrk->ws, 0);
-
-    /* Front of workspace area */
-    s = sp->wrk->ws->f;
-    v = snprintf(s, u, "%s", node);
-    v++;
-
-    if (v > u) {
-        /* No space, reset and leave */
-        WS_Release(sp->wrk->ws, 0);
-        return NULL;
-    }
-
-    /* Update work space with what we've used */
-    WS_Release(sp->wrk->ws, v);
-    return s;
+	freeaddrinfo(res);
+	return (p);
 }

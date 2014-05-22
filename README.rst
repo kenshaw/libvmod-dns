@@ -25,7 +25,7 @@ FUNCTIONS
 =========
 
 resolve
------
+-------
 
 Prototype
         ::
@@ -39,8 +39,9 @@ Example
         ::
 
                 set resp.http.x-dns-example = dns.resolve("www.example.com");
+
 rresolve
------
+--------
 
 Prototype
         ::
