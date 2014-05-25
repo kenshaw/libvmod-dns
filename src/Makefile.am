@@ -1,8 +1,8 @@
 
-vmoddir = $(VMODDIR)
+vmoddir = $(VMOD_DIR)
 vmod_LTLIBRARIES = libvmod_dns.la
 
-libvmod_dns_la_CFLAGS = -I$(VARNISHSRC)/include -I$(VARNISHSRC)
+libvmod_dns_la_CFLAGS = $(VMOD_INCLUDES)
 libvmod_dns_la_LDFLAGS = -module -export-dynamic -avoid-version -shared
 
 libvmod_dns_la_SOURCES = \
@@ -15,15 +15,18 @@ VMOD_TESTS = tests/*.vtc
 
 $(libvmod_dns_la_OBJECTS): vcc_if.h
 
-vcc_if.c vcc_if.h: $(VARNISHSRC)/lib/libvmod_std/vmod.py $(top_srcdir)/src/vmod_dns.vcc
-	$(PYTHON) $(VARNISHSRC)/lib/libvmod_std/vmod.py $(top_srcdir)/src/vmod_dns.vcc
+vcc_if.c vcc_if.h vmod_dns.man.rst: $(VMODTOOL) $(top_srcdir)/src/vmod_dns.vcc
+	$(PYTHON) $(VMODTOOL) $(top_srcdir)/src/vmod_dns.vcc
 
 check:
-	$(VARNISHSRC)/bin/varnishtest/varnishtest -Dvarnishd=$(VARNISHSRC)/bin/varnishd/varnishd -Dvmod_topbuild=$(abs_top_builddir) $(VMOD_TESTS)
+	$(VARNISHTEST) -Dvarnishd=$(VARNISHD) \
+	    -Dvmod_topbuild=$(abs_top_builddir) $(VMOD_TESTS)
 
 EXTRA_DIST = \
 	vmod_dns.vcc \
 	$(VMOD_TESTS)
 
 CLEANFILES = $(builddir)/vcc_if.c \
-	$(builddir)/vcc_if.h
+	$(builddir)/vcc_if.h \
+	$(builddir)/vmod_dns.rst \
+	$(builddir)/vmod_dns.man.rst

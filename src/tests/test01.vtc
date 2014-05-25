@@ -19,6 +19,6 @@ client c1 {
 	txreq
 	rxresp
 	expect resp.http.resolve1 == "8.8.8.8"
-	expect resp.http.resolve2 != ""
+	expect resp.http.resolve2 ~ "[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+::[0-9a-f]+"
 	expect resp.http.resolve3 == ""
 } -run

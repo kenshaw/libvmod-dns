@@ -6,13 +6,13 @@
 #include <stdlib.h>
 
 #include "vrt.h"
-#include "bin/varnishd/cache.h"
+#include "cache/cache.h"
 
 #include "vcc_if.h"
 
 
-const char *
-vmod_resolve(struct sess *sp, const char *hostname)
+VCL_STRING
+vmod_resolve(const struct vrt_ctx *ctx, VCL_STRING hostname)
 {
 	const struct sockaddr_in *si4;
 	const struct sockaddr_in6 *si6;
@@ -21,7 +21,7 @@ vmod_resolve(struct sess *sp, const char *hostname)
 	char *p;
 	int len;
 
-	CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 
 	if (getaddrinfo(hostname, NULL, NULL, &res))
 		return (NULL);
@@ -42,28 +42,28 @@ vmod_resolve(struct sess *sp, const char *hostname)
 	}
 
 	XXXAN(len);
-	AN(p = WS_Alloc(sp->wrk->ws, len));
+	AN(p = WS_Alloc(ctx->ws, len));
 	AN(inet_ntop(res->ai_family, addr, p, len));
 
 	freeaddrinfo(res);
 	return (p);
 }
 
-const char *
-vmod_rresolve(struct sess *sp, const char *hostname)
+VCL_STRING
+vmod_rresolve(const struct vrt_ctx *ctx, VCL_STRING hostname)
 {
 	char node[NI_MAXHOST];
 	struct addrinfo *res;
 	char *p = NULL;
 
-	CHECK_OBJ_NOTNULL(sp, SESS_MAGIC);
+	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 
 	if (getaddrinfo(hostname, NULL, NULL, &res))
 		return (NULL);
 
 	if (!getnameinfo(res->ai_addr, res->ai_addrlen, node,
 	    sizeof(node), NULL, 0, 0))
-		p = WS_Dup(sp->wrk->ws, node);
+		p = WS_Copy(ctx->ws, node, -1);
 
 	freeaddrinfo(res);
 	return (p);
