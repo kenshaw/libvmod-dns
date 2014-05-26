@@ -108,7 +108,7 @@ In your VCL you could then use this vmod along the following lines::
 
                 # check that the RDNS points to an allowed domain -- 403 error if it doesn't
                 if (req.http.X-Crawler-DNS-Reverse !~ "(?i)\.(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
-                    error 403 "Forbidden";
+                    return (synth(403, "Forbidden"));
                 }
 
                 # do a forward lookup on the DNS
@@ -116,7 +116,7 @@ In your VCL you could then use this vmod along the following lines::
 
                 # if the client.ip/X-Forwarded-For doesn't match, then the user-agent is fake
                 if (req.http.X-Crawler-DNS-Forward != req.http.X-Forwarded-For) {
-                    error 403 "Forbidden";
+                    return (synth(403, "Forbidden"));
                 }
             }
         }
