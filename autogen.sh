@@ -37,8 +37,8 @@ fi
 
 set -ex
 
-$LIBTOOLIZE --copy --force
 aclocal -I m4
+$LIBTOOLIZE --copy --force
 autoheader
 automake --add-missing --copy --foreign
 autoconf

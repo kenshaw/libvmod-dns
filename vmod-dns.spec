@@ -1,37 +1,39 @@
 Summary: DNS VMOD for Varnish
-Name: vmod-varnish-%{VARNISHVER}-dns
+Name: vmod-dns
 Version: 0.1
 Release: 1%{?dist}
 License: BSD
 Group: System Environment/Daemons
 Source0: libvmod-dns.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires: varnish >= 4.0
-BuildRequires: make, python-docutils
+Requires: varnish >= 4.0.2
+BuildRequires: make
+BuildRequires: python-docutils
+BuildRequires: varnish >= 4.0.2
+BuildRequires: varnish-libs-devel >= 4.0.2
 
 %description
 DNS VMOD
 
 %prep
-%setup -n libvmod-dns
+%setup -n libvmod-dns-trunk
 
 %build
-./configure --prefix=/usr/
-make
+%configure --prefix=/usr/
+%{__make} %{?_smp_mflags}
+%{__make} %{?_smp_mflags} check
 
 %install
-make install DESTDIR=%{buildroot}
-mkdir -p %{buildroot}/usr/share/doc/%{name}/
-cp README.rst %{buildroot}/usr/share/doc/%{name}/
-cp LICENSE %{buildroot}/usr/share/doc/%{name}/
+[ %{buildroot} != "/" ] && %{__rm} -rf %{buildroot}
+%{__make} install DESTDIR=%{buildroot}
 
 %clean
-rm -rf %{buildroot}
+[ %{buildroot} != "/" ] && %{__rm} -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/varnish/vmods/
-%doc /usr/share/doc/%{name}/*
+%{_libdir}/varnis*/vmods/
+%doc /usr/share/doc/lib%{name}/*
 %{_mandir}/man?/*
 
 %changelog

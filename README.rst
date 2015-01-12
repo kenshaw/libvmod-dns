@@ -7,8 +7,7 @@ Varnish DNS Module
 ----------------------
 
 :Author: Kenneth Shaw
-:Date: 2013-04-01
-:Version: 0.1
+:Date: 2015-01-12
 :Manual section: 3
 
 SYNOPSIS
@@ -67,7 +66,13 @@ User-Agent strings. See the example below.
 
 Usage::
 
+ cd ~/src
+ git clone https://github.com/kenshaw/libvmod-dns.git
+
+ cd libvmod-dns
+ ./autogen.sh
  ./configure
+ make && sudo make install
 
 Make targets:
 
@@ -98,28 +103,28 @@ install this VMOD::
 
 In your VCL you could then use this vmod along the following lines::
 
-        import dns;
+    import dns;
 
-        # do a dns check on "good" crawlers
-        sub vcl_recv {
-            if (req.http.user-agent ~ "(?i)(googlebot|bingbot|slurp|teoma)") {
-                # do a reverse lookup on the client.ip (X-Forwarded-For) and check that its in the allowed domains
-                set req.http.X-Crawler-DNS-Reverse = dns.rresolve(req.http.X-Forwarded-For);
+    # do a dns check on "good" crawlers
+    sub vcl_recv {
+        if (req.http.user-agent ~ "(?i)(googlebot|bingbot|slurp|teoma)") {
+            # do a reverse lookup on the client.ip (X-Forwarded-For) and check that its in the allowed domains
+            set req.http.X-Crawler-DNS-Reverse = dns.rresolve(req.http.X-Forwarded-For);
 
-                # check that the RDNS points to an allowed domain -- 403 error if it doesn't
-                if (req.http.X-Crawler-DNS-Reverse !~ "(?i)\.(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
-                    return (synth(403, "Forbidden"));
-                }
+            # check that the RDNS points to an allowed domain -- 403 error if it doesn't
+            if (req.http.X-Crawler-DNS-Reverse !~ "(?i)\.(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
+                return (synth(403, "Forbidden"));
+            }
 
-                # do a forward lookup on the DNS
-                set req.http.X-Crawler-DNS-Forward = dns.resolve(req.http.X-Crawler-DNS-Reverse);
+            # do a forward lookup on the DNS
+            set req.http.X-Crawler-DNS-Forward = dns.resolve(req.http.X-Crawler-DNS-Reverse);
 
-                # if the client.ip/X-Forwarded-For doesn't match, then the user-agent is fake
-                if (req.http.X-Crawler-DNS-Forward != req.http.X-Forwarded-For) {
-                    return (synth(403, "Forbidden"));
-                }
+            # if the client.ip/X-Forwarded-For doesn't match, then the user-agent is fake
+            if (req.http.X-Crawler-DNS-Forward != req.http.X-Forwarded-For) {
+                return (synth(403, "Forbidden"));
             }
         }
+    }
 
 HISTORY
 =======
@@ -133,4 +138,4 @@ COPYRIGHT
 This document is licensed under the same license as the
 libvmod-dns project. See LICENSE for details.
 
-* Copyright (c) 2013 Kenneth Shaw
+* Copyright (c) 2013-2015 Kenneth Shaw

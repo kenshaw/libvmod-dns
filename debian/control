@@ -2,11 +2,16 @@ Source: libvmod-dns
 Section: web
 Priority: extra
 Maintainer: Kenneth Shaw <kenshaw@gmail.com>
-Build-Depends: debhelper (>= 7), build-essential, python-docutils
+Build-Depends: debhelper (>= 7),
+ build-essential,
+ pkg-config,
+ python-docutils,
+ varnish (>= 4.0.2),
+ libvarnishapi-dev (>= 4.0.2)
 Standards-Version: 3.8.1
 Vcs-Git: git://github.com/kenshaw/libvmod-dns.git
 
 Package: libvmod-dns
-Architecture: all
-Depends: varnish, ${misc:Depends}
+Architecture: any
+Depends: varnish (>= 4.0.2), ${misc:Depends}, ${Varnish:ABI}
 Description: DNS vmod for Varnish
