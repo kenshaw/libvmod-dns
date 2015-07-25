@@ -67,7 +67,7 @@ User-Agent strings. See the example below.
 Usage::
 
  cd ~/src
- git clone https://github.com/kenshaw/libvmod-dns.git
+ git clone https://github.com/knq/libvmod-dns.git
 
  cd libvmod-dns
  ./autogen.sh
@@ -91,7 +91,7 @@ install this VMOD::
 
  # get varnish and libvmod-dns
  apt-get source varnish
- git clone https://github.com/kenshaw/libvmod-dns
+ git clone https://github.com/knq/libvmod-dns
 
  # build libvmod-dns
  cd libvmod-dns

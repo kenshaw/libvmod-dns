@@ -1,7 +1,7 @@
 Source: libvmod-dns
 Section: web
 Priority: extra
-Maintainer: Kenneth Shaw <kenshaw@gmail.com>
+Maintainer: Kenneth Shaw <kenneth.shaw@knq.io>
 Build-Depends: debhelper (>= 7),
  build-essential,
  pkg-config,
@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 7),
  varnish (>= 4.0.2),
  libvarnishapi-dev (>= 4.0.2)
 Standards-Version: 3.8.1
-Vcs-Git: git://github.com/kenshaw/libvmod-dns.git
+Vcs-Git: git://github.com/knq/libvmod-dns.git
 
 Package: libvmod-dns
 Architecture: any
