@@ -19,13 +19,13 @@ init_function(struct vmod_priv *priv, const struct VCL_conf *conf)
 }
 
 VCL_STRING
-vmod_resolve(const struct vrt_ctx *ctx, VCL_STRING hostname)
+vmod_resolve(VRT_CTX, VCL_STRING hostname)
 {
 	const struct sockaddr_in *si4;
 	const struct sockaddr_in6 *si6;
 	struct addrinfo *res;
 	const void *addr;
-	char *p;
+	const char *r;
 	int len;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
@@ -48,20 +48,25 @@ vmod_resolve(const struct vrt_ctx *ctx, VCL_STRING hostname)
 		INCOMPL();
 	}
 
-	XXXAN(len);
-	AN(p = WS_Alloc(ctx->ws, len));
-	AN(inet_ntop(res->ai_family, addr, p, len));
+	/*
+	 * copy twice to avoid dependency on WS_Alloc, which is not in $ABI VRT
+	 * minor bonus: can use less workspace than allocing len
+	 */
+
+	char p[len];
+	r = VRT_CollectString(ctx, inet_ntop(res->ai_family, addr, p, len),
+	    vrt_magic_string_end);
 
 	freeaddrinfo(res);
-	return (p);
+	return (r);
 }
 
 VCL_STRING
-vmod_rresolve(const struct vrt_ctx *ctx, VCL_STRING hostname)
+vmod_rresolve(VRT_CTX, VCL_STRING hostname)
 {
 	char node[NI_MAXHOST];
 	struct addrinfo *res;
-	char *p = NULL;
+	const char *p = NULL;
 
 	CHECK_OBJ_NOTNULL(ctx, VRT_CTX_MAGIC);
 
@@ -70,7 +75,7 @@ vmod_rresolve(const struct vrt_ctx *ctx, VCL_STRING hostname)
 
 	if (!getnameinfo(res->ai_addr, res->ai_addrlen, node,
 	    sizeof(node), NULL, 0, 0))
-		p = WS_Copy(ctx->ws, node, -1);
+		p = VRT_CollectString(ctx, node, vrt_magic_string_end);
 
 	freeaddrinfo(res);
 	return (p);
