@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "vdef.h"
 #include "vrt.h"
-#include "cache/cache.h"
+#include "miniobj.h"
+#include "vas.h"
 
 #include "vcc_if.h"
 
