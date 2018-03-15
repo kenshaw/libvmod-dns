@@ -1,28 +1,42 @@
-AM_CPPFLAGS = @VMOD_INCLUDES@ -Wall -Werror
+AM_CFLAGS = $(VARNISHAPI_CFLAGS)
 
-vmoddir = @VMOD_DIR@
-vmod_LTLIBRARIES = libvmod_dns.la
+# Modules
 
-libvmod_dns_la_LDFLAGS = -module -export-dynamic -avoid-version -shared
+vmod_LTLIBRARIES = \
+	libvmod_dns.la
 
-libvmod_dns_la_SOURCES = \
-	vcc_if.c \
-	vcc_if.h \
-	vmod_dns.c
+libvmod_dns_la_LDFLAGS = $(VMOD_LDFLAGS)
+libvmod_dns_la_SOURCES = vmod_dns.c
+nodist_libvmod_dns_la_SOURCES = \
+	vcc_dns_if.c \
+	vcc_dns_if.h
 
-vcc_if.c vcc_if.h: @VMODTOOL@ $(top_srcdir)/src/vmod_dns.vcc
-	@VMODTOOL@ $(top_srcdir)/src/vmod_dns.vcc
+@BUILD_VMOD_DNS@
 
-VMOD_TESTS = $(top_srcdir)/src/tests/*.vtc
-.PHONY: $(VMOD_TESTS)
+# Test suite
 
-$(top_srcdir)/src/tests/*.vtc:
-	@VARNISHTEST@ -Dvarnishd=@VARNISHD@ -Dvmod_topbuild=$(abs_top_builddir) $@
+AM_TESTS_ENVIRONMENT = \
+	PATH="$(abs_builddir):$(VARNISH_TEST_PATH):$(PATH)" \
+	LD_LIBRARY_PATH="$(VARNISH_LIBRARY_PATH)"
+TEST_EXTENSIONS = .vtc
+VTC_LOG_COMPILER = varnishtest -v
+AM_VTC_LOG_FLAGS = \
+	-p vcl_path="$(abs_top_srcdir)/vcl" \
+	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir)"
 
-check: $(VMOD_TESTS)
+TESTS = \
+	vtc/vmod_dns01.vtc \
+	vtc/vmod_dns02.vtc
 
-EXTRA_DIST = \
+# Documentation
+
+dist_doc_DATA = \
 	vmod_dns.vcc \
-	$(VMOD_TESTS)
+	$(TESTS)
 
-CLEANFILES = $(builddir)/vcc_if.c $(builddir)/vcc_if.h
+dist_man_MANS = \
+	vmod_dns.3
+
+
+.rst.1:
+	$(AM_V_GEN) $(RST2MAN) $< $@

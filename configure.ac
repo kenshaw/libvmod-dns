@@ -1,52 +1,44 @@
-AC_PREREQ(2.64)
-AC_COPYRIGHT([Copyright (c) 2013-2015 Kenneth Shaw])
+AC_PREREQ(2.68)
+AC_COPYRIGHT([Copyright (c) 2013-2015 Kenneth Shaw, 2018 UPLEX])
 AC_INIT([libvmod-dns], [trunk])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR(src/vmod_dns.vcc)
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_HEADER([config.h])
 
-AC_CANONICAL_SYSTEM
-AC_LANG(C)
+AM_INIT_AUTOMAKE([1.12 -Wall -Werror foreign parallel-tests])
+AM_SILENT_RULES([yes])
+AM_PROG_AR
 
-AM_INIT_AUTOMAKE([foreign])
+LT_PREREQ([2.2.6])
+LT_INIT([dlopen disable-static])
 
-AC_GNU_SOURCE
-AC_PROG_CC
-AC_PROG_CC_STDC
-if test "x$ac_cv_prog_cc_c99" = xno; then
-	AC_MSG_ERROR([Could not find a C99 compatible compiler])
-fi
-AC_PROG_CPP
+AC_ARG_WITH([rst2man],
+	AS_HELP_STRING(
+		[--with-rst2man=PATH],
+		[Location of rst2man (auto)]),
+	[RST2MAN="$withval"],
+	AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py], []))
 
-AC_PROG_INSTALL
-AC_PROG_LIBTOOL
-AC_PROG_MAKE_SET
-
-# Check for rst utilities
-AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py], "no")
-if test "x$RST2MAN" = "xno"; then
-	AC_MSG_WARN([rst2man not found - not building man pages])
-fi
-AM_CONDITIONAL(HAVE_RST2MAN, [test "x$RST2MAN" != "xno"])
-
-# Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS([sys/stdlib.h])
-
-
-PKG_CHECK_MODULES([libvarnishapi], [varnishapi])
-
-# Varnish include files tree
-VARNISH_VMOD_INCLUDES
-VARNISH_VMOD_DIR
-VARNISH_VMODTOOL
-
-AC_PATH_PROG([VARNISHTEST], [varnishtest])
-AC_PATH_PROG([VARNISHD], [varnishd], [],
-    [$PATH:$PATH:`pkg-config varnishapi --variable=sbindir`])
+VARNISH_PREREQ([5.2.0])
+VARNISH_VMODS([dns])
 
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 ])
+
 AC_OUTPUT
+
+AS_ECHO("
+	==== $PACKAGE_STRING ====
+
+	varnish:      $VARNISH_VERSION
+	prefix:       $prefix
+	vmoddir:      $vmoddir
+	vcldir:       $vcldir
+	pkgvcldir:    $pkgvcldir
+
+	compiler:     $CC
+	cflags:       $CFLAGS
+	ldflags:      $LDFLAGS
+")

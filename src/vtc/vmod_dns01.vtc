@@ -6,7 +6,7 @@ server s1 {
 } -start
 
 varnish v1 -vcl+backend {
-	import dns from "${vmod_topbuild}/src/.libs/libvmod_dns.so";
+	import dns;
 
 	sub vcl_deliver {
 		set resp.http.resolve1 = dns.resolve("google-public-dns-a.google.com");
