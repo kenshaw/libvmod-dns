@@ -9,16 +9,16 @@ varnish v1 -vcl+backend {
 	import dns;
 
 	sub vcl_deliver {
-		set resp.http.resolve1 = dns.resolve("google-public-dns-a.google.com");
-		set resp.http.resolve2 = dns.resolve("ipv6.google.com");
-		set resp.http.resolve3 = dns.resolve("foo.bar");
+		set resp.http.r1 = dns.resolve("all-systems.mcast.net");
+		set resp.http.r2 = dns.resolve("ipv6.google.com");
+		set resp.http.r3 = dns.resolve("foo.bar");
 	}
 } -start
 
 client c1 {
 	txreq
 	rxresp
-	expect resp.http.resolve1 == "8.8.8.8"
-	expect resp.http.resolve2 ~ "[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+::[0-9a-f]+"
-	expect resp.http.resolve3 == ""
+	expect resp.http.r1 == "224.0.0.1"
+	expect resp.http.r2 ~ "[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+::[0-9a-f]+"
+	expect resp.http.r3 == ""
 } -run
