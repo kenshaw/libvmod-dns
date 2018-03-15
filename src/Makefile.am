@@ -26,7 +26,11 @@ AM_VTC_LOG_FLAGS = \
 
 TESTS = \
 	vtc/vmod_dns01.vtc \
-	vtc/vmod_dns02.vtc
+	vtc/vmod_dns02.vtc \
+	vtc/vmod_dns_valid_ip.vtc \
+	vtc/vmod_dns_valid_host_ip.vtc \
+	vtc/vmod_dns_valid_host_host.vtc \
+	vtc/vmod_dns_example.vtc
 
 # Documentation
 

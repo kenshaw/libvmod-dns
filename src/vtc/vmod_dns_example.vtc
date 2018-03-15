@@ -1,0 +1,51 @@
+varnishtest "test vmod-dns example given in the documentation"
+
+varnish v1 -proto "PROXY" -vcl {
+	import dns;
+
+	backend dummy { .host = "${bad_ip}"; }
+
+	sub SLOW_recv_functions {
+	    set req.http.potentially-fake-client-hostname =
+	      dns.rresolve(client.ip);
+
+	    # simplified example! See
+	    # https://support.google.com/webmasters/answer/1061943
+	    # for the full list of google crawlers
+	    #
+	    if (req.http.User-Agent ~ "Googlebot" &&
+		dns.valid_ip(client.ip) !~ "\.google(bot)?\.com$") {
+		    set req.http.User-Agent = "fake";
+	    }
+
+	    return (synth(204));
+	}
+
+	sub vcl_recv {
+	    call SLOW_recv_functions;
+	}
+
+	sub vcl_synth {
+	    set resp.http.pfch =
+	      req.http.potentially-fake-client-hostname;
+
+	    set resp.http.User-Agent =
+	      req.http.User-Agent;
+
+	    set resp.http.valid = dns.valid_ip(client.ip);
+	}
+} -start
+
+client c1 -proxy1 "224.0.0.1:1234 127.0.0.1:80" {
+	txreq -hdr "User-Agent: Mozilla/5.0 (compatible; Googlebot/2.1)"
+	rxresp
+	expect resp.http.pfch == "all-systems.mcast.net"
+	expect resp.http.User-Agent == "fake"
+} -run
+
+client c2 -proxy1 "66.249.66.1:2345 127.0.0.1:80" {
+	txreq -hdr "User-Agent: Mozilla/5.0 (compatible; Googlebot/2.1)"
+	rxresp
+	expect resp.http.pfch == "crawl-66-249-66-1.googlebot.com"
+	expect resp.http.User-Agent == "Mozilla/5.0 (compatible; Googlebot/2.1)"
+} -run

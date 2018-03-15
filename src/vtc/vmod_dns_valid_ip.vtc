@@ -1,0 +1,33 @@
+varnishtest "test vmod-dns valid with numeric address"
+
+server s1 {
+	rxreq
+	txresp
+} -start
+
+varnish v1 -vcl+backend {
+	import dns;
+	import std;
+
+	sub vcl_deliver {
+	    set resp.http.r1 =
+	      dns.valid_ip(std.ip("224.0.0.1", server.ip));
+	    set resp.http.r2 =
+	      dns.valid_ip(std.ip("2001:500:86::86", server.ip));
+
+	    # address from the UPLEX ip range which happens to be
+	    # badly configured, so it serves as a valid negative test
+	    # case, but this may change eventually
+
+	    set resp.http.r3 =
+	      dns.valid_ip(std.ip("212.12.63.112", server.ip));
+	}
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.http.r1 == "all-systems.mcast.net"
+	expect resp.http.r2 == "b.ip6-servers.arpa"
+	expect resp.http.r3 == ""
+} -run
