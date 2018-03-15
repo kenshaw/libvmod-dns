@@ -82,6 +82,25 @@ Example
 	    }
 	}
 
+BUILDING
+========
+
+This vmod is being build like any other modern vmod. The basic steps
+are::
+
+  ./bootstrap
+  make
+  make check
+  make install
+
+For building against a varnish installation at a custom prefix
+``${PREFIX}``, set these environment variables before running the
+above::
+
+  export PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig
+  export ACLOCAL_PATH=${PREFIX}/share/aclocal
+
+
 CONTENTS
 ========
 
