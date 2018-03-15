@@ -1,141 +1,191 @@
-============
-libvmod_dns
-============
+..
+.. NB:  This file is machine generated, DO NOT EDIT!
+..
+.. Edit vmod.vcc and run make instead
+..
 
-----------------------
-Varnish DNS Module
-----------------------
+.. role:: ref(emphasis)
 
-:Author: Kenneth Shaw
-:Date: 2015-01-12
+.. _vmod_dns(3):
+
+========
+vmod_dns
+========
+
+------------------
+Varnish dns Module
+------------------
+
 :Manual section: 3
 
 SYNOPSIS
 ========
 
-import dns;
+
+::
+
+   import dns [from "path"] ;
+   
+   STRING resolve(STRING s)
+  
+   STRING rresolve(STRING s)
+  
+   STRING valid_ip(IP ip)
+  
+   STRING valid_host(STRING name, ENUM check)
+  
+
 
 DESCRIPTION
 ===========
 
-Provides some DNS functions to Varnish.
+This vmod provides functions to query the system's name resolution
+service (which, in most cases, will be using the Domain Name System
+(DNS), hence the name).
 
-FUNCTIONS
-=========
+In particular, utility functions for name service based validations
+are being provided, for example to identify legit search engine
+crawlers based on the domain name.
 
-resolve
--------
+  **WARNING**
 
-Prototype
-        ::
+  *name resolution queries can be slow as in dead slow, slow as can
+  be, totally unacceptably slow for a high performance delivery
+  software like Varnish. Typical DNS timeouts in the order of seconds
+  are at least tens of thousands of times longer than typical
+  processing times in varnish. Thus* **extreme care** *should be taken
+  when using this vmod*, for example by narrowing calls to dns vmod
+  functions to rare cases or heavily rate-limiting them (as with
+  ``vmod_vsstrottle``, see
+  https://github.com/varnish/varnish-modules). Also, using a name
+  service cache (like ``nscd``) with tight timeouts is recommended.
 
-                resolve(STRING str)
-Return value
-	STRING
-Description
-	Resolves the hostname to its dns entry
+  You've been warned.
+
 Example
-        ::
+    ::
 
-                set resp.http.x-dns-example = dns.resolve("www.example.com");
+	import dns;
 
-rresolve
---------
+	sub SLOW_recv_functions {
+	    set req.http.potentially-fake-client-hostname =
+	      dns.rresolve(client.ip);
 
-Prototype
-        ::
+	    # simplified example! See
+	    # https://support.google.com/webmasters/answer/1061943
+	    # for the full list of google crawlers
+	    #
+	    if (req.http.User-Agent ~ "Googlebot" &&
+		dns.valid_ip(client.ip) !~ "\.google(bot)?\.com$") {
+		    set req.http.User-Agent = "fake";
+		}
+	    }
+	}
 
-                rresolve(STRING str)
-Return value
-	STRING
-Description
-	Reverse resolve an IP
-Example
-        ::
+CONTENTS
+========
 
-                set resp.http.x-dns-reverse = dns.rresolve("127.0.0.1");
-
-INSTALLATION
-============
-
-This vmod is based off the libvmod-example source, and thus works / compiles
-in the same fashion.
-
-This vmod was originally built with the intention of detecting bots with bad
-User-Agent strings. See the example below.
-
-Usage::
-
- cd ~/src
- git clone https://github.com/knq/libvmod-dns.git
-
- cd libvmod-dns
- ./autogen.sh
- ./configure
- make && sudo make install
-
-Make targets:
-
-* make - builds the vmod
-* make install - installs your vmod
-* make check - runs the unit tests in ``src/tests/*.vtc``
+* :ref:`func_resolve`
+* :ref:`func_rresolve`
+* :ref:`func_valid_host`
+* :ref:`func_valid_ip`
 
 
-If you are installing this on a Debian or Debian-derivative, and using the
-[Debian packages](https://www.varnish-cache.org/installation/debian), then
-doing the following (as root) should be all that is necessary to build and
-install this VMOD::
+.. _func_resolve:
 
- # change to working source directory
- cd /usr/local/src
+STRING resolve(STRING s)
+------------------------
 
- # get varnish and libvmod-dns
- apt-get source varnish
- git clone https://github.com/knq/libvmod-dns
+Converts the string *s* to the first IP number returned by the system
+library function getaddrinfo(3) and returns the result as a string.
 
- # build libvmod-dns
- cd libvmod-dns
- ./configure
-
- # install
- make && make install
+This function has been obsoleted by ``std.ip()`` from varnish-cache
+and is only provided for backwards compatibility. Other than that, it
+is slightly more efficient if both a string result is required.
 
 
-In your VCL you could then use this vmod along the following lines::
+.. _func_rresolve:
 
-    import dns;
+STRING rresolve(STRING s)
+-------------------------
 
-    # do a dns check on "good" crawlers
-    sub vcl_recv {
-        if (req.http.user-agent ~ "(?i)(googlebot|bingbot|slurp|teoma)") {
-            # do a reverse lookup on the client.ip (X-Forwarded-For) and check that its in the allowed domains
-            set req.http.X-Crawler-DNS-Reverse = dns.rresolve(req.http.X-Forwarded-For);
+Converts the string *s* to the first IP number returned by the system
+library function getaddrinfo(3), issues a reverse lookup using the
+library function getnameinfo(3) and returns the result.
 
-            # check that the RDNS points to an allowed domain -- 403 error if it doesn't
-            if (req.http.X-Crawler-DNS-Reverse !~ "(?i)\.(googlebot\.com|search\.msn\.com|crawl\.yahoo\.net|ask\.com)$") {
-                return (synth(403, "Forbidden"));
-            }
 
-            # do a forward lookup on the DNS
-            set req.http.X-Crawler-DNS-Forward = dns.resolve(req.http.X-Crawler-DNS-Reverse);
+.. _func_valid_ip:
 
-            # if the client.ip/X-Forwarded-For doesn't match, then the user-agent is fake
-            if (req.http.X-Crawler-DNS-Forward != req.http.X-Forwarded-For) {
-                return (synth(403, "Forbidden"));
-            }
-        }
-    }
+STRING valid_ip(IP ip)
+----------------------
 
-HISTORY
-=======
+Issues a reverse lookup of the address *ip* using the library function
+getnameinfo(3), gets all addresses of the same address family as *ip*
+for this *name* using getaddrinfo(3) and returns *name* if at least
+one of the addresses *name* resolves to matches *ip*.
 
-This module was created in an effort to detect/prevent/stop clients User-Agent
-strings claiming to be googlebot/msnbot/etc.
+By using both a forward and a reverse lookup, this method provides a
+high level of confidence that the returned *name* is in fact the
+canonical name for *ip*.
+
+Compared to combining `func_rresolve`_ with `func_resolve`_, this
+function has the advantage of properly handling *name*\ s which
+resolve to more than one address.
+
+
+.. _func_valid_host:
+
+STRING valid_host(STRING name, ENUM {any, all} check=any)
+---------------------------------------------------------
+
+Retrieves all addresses for *name* using getaddrinfo(3) and returns
+the canonical name as `func_valid_ip` would. For *check*\ =\ ``all``,
+all addresses must be determined as valid, with the default *check*\
+=\ ``any``, one successful check is sufficient.
+
+The advantage of this seemingly overly complicated method over just
+comparing *name* with the result of `func_rresolve`_\ (*name*) is that
+it also works if *name* is not the canonical hostname (as with CNAME
+DNS records).
+
+The advantage over using `func_valid_ip`_\ (std.ip(*name*)) is that
+all or any of the addresses for *name* can be checked.
+
+SEE ALSO
+========
+
+* vcl\(7),
+* varnishd\(1)
+
 
 COPYRIGHT
 =========
 
-This document is licensed under the same license as the
-libvmod-dns project. See LICENSE for details.
+::
 
-* Copyright (c) 2013-2015 Kenneth Shaw
+  Copyright (c) 2013-2015 Kenneth Shaw
+  Copyright 2018 UPLEX - Nils Goroll Systemoptimierung
+  
+  Authors: Kenneth Shaw
+           Nils Goroll
+  
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
