@@ -2,6 +2,18 @@
 
 set -e
 
+# check for varnishapi.m4
+dataroot=$(pkg-config --variable=datarootdir varnishapi 2>/dev/null)
+
+if [ -z "${dataroot}" ] ; then
+	cat >&2 <<'EOF'
+Package varnishapi was not found in the pkg-config search path.
+Consider adding the directory containing `varnishapi.pc'
+to the PKG_CONFIG_PATH environment variable
+EOF
+	exit 1
+fi
+
 WORK_DIR="$PWD"
 ROOT_DIR="$(dirname "$0")"
 
@@ -15,7 +27,7 @@ then
 fi
 
 mkdir -p m4
-aclocal
+aclocal -I m4 -I ${dataroot}/aclocal
 libtoolize --copy --force
 autoheader
 automake --add-missing --copy --foreign
