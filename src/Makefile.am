@@ -22,7 +22,7 @@ TEST_EXTENSIONS = .vtc
 VTC_LOG_COMPILER = varnishtest -v
 AM_VTC_LOG_FLAGS = \
 	-p vcl_path="$(abs_top_srcdir)/vcl" \
-	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir)"
+	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VARNISHAPI_VMODDIR)"
 
 TESTS = \
 	vtc/vmod_dns01.vtc \
