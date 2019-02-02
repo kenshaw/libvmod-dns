@@ -27,6 +27,7 @@
 # SUCH DAMAGE.
 
 $Module dns 3 "Varnish dns Module"
+$Prefix vmod
 
 DESCRIPTION
 ===========

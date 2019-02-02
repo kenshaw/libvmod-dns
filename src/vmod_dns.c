@@ -182,7 +182,7 @@ vmod_valid_host(VRT_CTX, VCL_STRING node, VCL_ENUM check)
 	struct addrinfo hints, *res0 = NULL;
 	const struct addrinfo *res = NULL;
 	const char *r = NULL;
-	const int all = (check == vmod_enum_all);
+	const int all = (check == VENUM(all));
 
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_socktype = SOCK_STREAM;
