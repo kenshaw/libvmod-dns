@@ -18,7 +18,7 @@ varnish v1 -vcl+backend {
 client c1 {
 	txreq
 	rxresp
-	expect resp.http.rresolve1 == "google-public-dns-a.google.com"
-	expect resp.http.rresolve2 == "google-public-dns-b.google.com"
+	expect resp.http.rresolve1 == "dns.google"
+	expect resp.http.rresolve2 == "dns.google"
 	expect resp.http.rresolve3 == ""
 } -run
