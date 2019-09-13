@@ -101,7 +101,7 @@ By using both a forward and a reverse lookup, this method provides a
 high level of confidence that the returned *name* is in fact the
 canonical name for *ip*.
 
-Compared to combining `vmod_dns.rresolve`_ with `vmod_dns.resolve`_, this
+Compared to combining `dns.rresolve()`_ with `dns.resolve()`_, this
 function has the advantage of properly handling *name*\ s which
 resolve to more than one address.
 
@@ -113,11 +113,11 @@ all addresses must be determined as valid, with the default *check*\
 =\ ``any``, one successful check is sufficient.
 
 The advantage of this seemingly overly complicated method over just
-comparing *name* with the result of `vmod_dns.rresolve`_\ (*name*) is that
+comparing *name* with the result of `dns.rresolve()`_\ (*name*) is that
 it also works if *name* is not the canonical hostname (as with CNAME
 DNS records).
 
-The advantage over using `vmod_dns.valid_ip`_\ (std.ip(*name*)) is that
+The advantage over using `dns.valid_ip()`_\ (std.ip(*name*)) is that
 all or any of the addresses for *name* can be checked.
 
 SEE ALSO
