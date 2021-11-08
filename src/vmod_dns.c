@@ -45,7 +45,9 @@
 
 #include "vcc_dns_if.h"
 
-#define VSTR(s)(&(struct strands){.n=1,.p=(const char *[1]){s}})
+#ifndef TOSTRAND
+#define TOSTRAND(s)(&(struct strands){.n=1,.p=(const char *[1]){s}})
+#endif
 
 VCL_STRING
 vmod_resolve(VRT_CTX, VCL_STRING hostname)
@@ -84,7 +86,7 @@ vmod_resolve(VRT_CTX, VCL_STRING hostname)
 
 	char p[len];
 	r = VRT_STRANDS_string(ctx,
-	    VSTR(inet_ntop(res->ai_family, addr, p, len)));
+	    TOSTRAND(inet_ntop(res->ai_family, addr, p, len)));
 
 	freeaddrinfo(res);
 	return (r);
@@ -104,7 +106,7 @@ vmod_rresolve(VRT_CTX, VCL_STRING hostname)
 
 	if (!getnameinfo(res->ai_addr, res->ai_addrlen, node,
 	    sizeof(node), NULL, 0, 0))
-		p = VRT_STRANDS_string(ctx, VSTR(node));
+		p = VRT_STRANDS_string(ctx, TOSTRAND(node));
 
 	freeaddrinfo(res);
 	return (p);
@@ -157,7 +159,7 @@ valid_ip(VRT_CTX, const struct sockaddr *sa, const socklen_t sl)
 		if (res->ai_family == sa->sa_family &&
 		    res->ai_addrlen == sl &&
 		    cmp_addr(res->ai_addr, sa) == 0) {
-			r = VRT_STRANDS_string(ctx, VSTR(node));
+			r = VRT_STRANDS_string(ctx, TOSTRAND(node));
 			break;
 		}
 	}
