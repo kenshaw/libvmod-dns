@@ -1,9 +1,9 @@
-AC_PREREQ(2.68)
+AC_PREREQ([2.69])
 AC_COPYRIGHT([Copyright (c) 2013-2015 Kenneth Shaw, 2018 UPLEX])
-AC_INIT([libvmod-dns], [trunk])
+AC_INIT([libvmod-dns],[trunk])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([1.12 -Wall -Werror foreign parallel-tests])
 AM_SILENT_RULES([yes])
