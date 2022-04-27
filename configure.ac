@@ -17,7 +17,7 @@ AC_ARG_WITH([rst2man],
 		[--with-rst2man=PATH],
 		[Location of rst2man (auto)]),
 	[RST2MAN="$withval"],
-	AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py], []))
+	[AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py], [])])
 
 VARNISH_PREREQ([5.2.0])
 VARNISH_VMODS([dns])
