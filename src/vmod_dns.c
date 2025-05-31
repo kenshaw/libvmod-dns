@@ -37,8 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "vdef.h"
-#include "vrt.h"
+#include "cache/cache.h"
 #include "miniobj.h"
 #include "vas.h"
 #include "vsa.h"
@@ -85,8 +84,7 @@ vmod_resolve(VRT_CTX, VCL_STRING hostname)
 	 */
 
 	char p[len];
-	r = VRT_STRANDS_string(ctx,
-	    TOSTRAND(inet_ntop(res->ai_family, addr, p, len)));
+	r = WS_Copy(ctx->ws, inet_ntop(res->ai_family, addr, p, len), -1);
 
 	freeaddrinfo(res);
 	return (r);
@@ -105,8 +103,11 @@ vmod_rresolve(VRT_CTX, VCL_STRING hostname)
 		return (NULL);
 
 	if (!getnameinfo(res->ai_addr, res->ai_addrlen, node,
-	    sizeof(node), NULL, 0, 0))
-		p = VRT_STRANDS_string(ctx, TOSTRAND(node));
+	    sizeof(node), NULL, 0, 0)) {
+		p = WS_Copy(ctx->ws, node, -1);
+		if (p == NULL)
+			VRT_fail(ctx, "Workspace overflow");
+	}
 
 	freeaddrinfo(res);
 	return (p);
@@ -159,7 +160,9 @@ valid_ip(VRT_CTX, const struct sockaddr *sa, const socklen_t sl)
 		if (res->ai_family == sa->sa_family &&
 		    res->ai_addrlen == sl &&
 		    cmp_addr(res->ai_addr, sa) == 0) {
-			r = VRT_STRANDS_string(ctx, TOSTRAND(node));
+			r = WS_Copy(ctx->ws, node, -1);
+			if (r == NULL)
+				VRT_fail(ctx, "Workspace overflow");
 			break;
 		}
 	}
