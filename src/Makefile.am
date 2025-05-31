@@ -11,6 +11,10 @@ nodist_libvmod_dns_la_SOURCES = \
 	vcc_dns_if.c \
 	vcc_dns_if.h
 
+DISTCLEANFILES = vmod_vcs_version.txt
+
+vmod_vcs_version.txt: $(nodist_libvmod_dns_la_SOURCES)
+
 @BUILD_VMOD_DNS@
 
 # Test suite
@@ -44,3 +48,6 @@ dist_man_MANS = \
 
 .rst.1:
 	$(AM_V_GEN) $(RST2MAN) $< $@
+
+EXTRA_DIST = \
+	vmod_vcs_version.txt
