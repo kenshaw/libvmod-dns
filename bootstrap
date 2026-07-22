@@ -1,37 +1,16 @@
 #!/bin/sh
 
 set -e
+set -u
 
-# check for vinylapi.m4
-dataroot=$(pkg-config --variable=datarootdir vinylapi 2>/dev/null)
+ROOT_DIR=$(dirname "$0")
 
-if [ -z "${dataroot}" ] ; then
-	cat >&2 <<'EOF'
-Package vinylapi was not found in the pkg-config search path.
-Consider adding the directory containing `vinylapi.pc'
-to the PKG_CONFIG_PATH environment variable
-EOF
-	exit 1
-fi
+pkg-config --exists --print-errors vinylapi
 
-WORK_DIR="$PWD"
-ROOT_DIR="$(dirname "$0")"
-
-test -n "$ROOT_DIR"
-cd "$ROOT_DIR"
-
-if ! which libtoolize >/dev/null 2>&1
-then
-	echo "libtoolize: command not found, falling back to glibtoolize" >&2
-	alias libtoolize=glibtoolize
-fi
+VINYLAPI_DATAROOTDIR=$(pkg-config --variable=datarootdir vinylapi)
+export VINYLAPI_DATAROOTDIR
 
 mkdir -p m4
-aclocal -I m4 -I ${dataroot}/aclocal
-libtoolize --copy --force
-autoheader
-automake --add-missing --copy --foreign
-autoconf
+autoreconf -i "$ROOT_DIR"
 
-cd "$WORK_DIR"
 "$ROOT_DIR"/configure "$@"
