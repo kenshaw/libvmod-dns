@@ -42,6 +42,10 @@ dist_doc_DATA = \
 	vmod_dns.vcc \
 	$(TESTS)
 
+if HAVE_VCS_VMOD_VERSION
+dist_doc_DATA += vmod_vcs_version.txt
+endif
+
 dist_man_MANS = \
 	vmod_dns.3
 
@@ -49,5 +53,3 @@ dist_man_MANS = \
 .rst.1:
 	$(AM_V_GEN) $(RST2MAN) $< $@
 
-EXTRA_DIST = \
-	vmod_vcs_version.txt

@@ -3,29 +3,42 @@ AC_COPYRIGHT([Copyright (c) 2013-2015 Kenneth Shaw, 2018 UPLEX])
 AC_INIT([libvmod-dns],[trunk])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_SRCDIR([src/vmod_dns.vcc])
 AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([1.12 -Wall -Werror foreign parallel-tests])
 AM_SILENT_RULES([yes])
+
+AC_ARG_VAR([RST2MAN], [the program to build manuals from reStructuredText])
+AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py])
+
+VINYL_PREREQ([9.0.0])
+VINYL_VMODS([dns])
+
 AM_PROG_AR
 
 LT_PREREQ([2.2.6])
 LT_INIT([dlopen disable-static])
 
-AC_ARG_WITH([rst2man],
-	AS_HELP_STRING(
-		[--with-rst2man=PATH],
-		[Location of rst2man (auto)]),
-	[RST2MAN="$withval"],
-	[AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py], [])])
-
-VINYL_PREREQ([9.0.0])
-VINYL_VMODS([dns])
-
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 ])
+
+AC_CHECK_PROG([HAVE_GIT], [git], [yes], [no])
+if test "x$HAVE_GIT" = "xyes"; then
+	if git rev-parse --git-dir >/dev/null 2>&1; then
+		HAVE_GIT_REPO=yes
+	else
+		HAVE_GIT_REPO=no
+	fi
+else
+	HAVE_GIT_REPO=no
+fi
+AM_CONDITIONAL([HAVE_VCS_VMOD_VERSION], [test -f "src/vmod_vcs_version.txt" || test "x$HAVE_GIT_REPO" = "xyes"])
+if test "x$HAVE_GIT_REPO" != "xyes" && test ! -f "src/vmod_vcs_version.txt"; then
+   AC_MSG_WARN([Building without version control metadata - vmod_vcs_version.txt will be unavailable])
+fi
 
 AC_OUTPUT
 
