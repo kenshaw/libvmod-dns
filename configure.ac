@@ -12,6 +12,22 @@ AM_SILENT_RULES([yes])
 AC_ARG_VAR([RST2MAN], [the program to build manuals from reStructuredText])
 AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py])
 
+AC_ARG_WITH([lcov],
+    AS_HELP_STRING(
+        [--with-lcov=PATH],
+        [Location of lcov to generate coverage data (auto)]),
+    [LCOV="$withval"],
+    [AC_CHECK_PROGS(LCOV, [lcov], [])])
+AM_CONDITIONAL(HAVE_LCOV, [test -n "$LCOV"])
+
+AC_ARG_WITH([genhtml],
+    AS_HELP_STRING(
+        [--with-genhtml=PATH],
+        [Location of genhtml to generate coverage reports (auto)]),
+    [GENHTML="$withval"],
+    [AC_CHECK_PROGS(GENHTML, [genhtml], [])])
+AM_CONDITIONAL(HAVE_GENHTML, [test -n "$GENHTML"])
+
 VINYL_PREREQ([9.0.0])
 VINYL_VMODS([dns])
 
