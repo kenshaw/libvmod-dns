@@ -1,11 +1,11 @@
-varnishtest "Test libvmod-dns rresolve"
+vtest "Test libvmod-dns resolve"
 
 server s1 {
 	rxreq
 	txresp
 } -start
 
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import dns;
 
 	sub vcl_deliver {

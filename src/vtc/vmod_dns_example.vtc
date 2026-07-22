@@ -1,6 +1,6 @@
-varnishtest "test vmod-dns example given in the documentation"
+vtest "test vmod-dns example given in the documentation"
 
-varnish v1 -proto "PROXY" -vcl {
+vinyl v1 -proto "PROXY" -vcl {
 	import dns;
 
 	backend dummy { .host = "${bad_ip}"; }

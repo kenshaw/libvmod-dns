@@ -1,11 +1,11 @@
-varnishtest "test vmod-dns valid with numeric address"
+vtest "test vmod-dns valid with numeric address"
 
 server s1 {
 	rxreq
 	txresp
 } -start
 
-varnish v1 -vcl+backend {
+vinyl v1 -vcl+backend {
 	import dns;
 	import std;
 

@@ -2,13 +2,13 @@
 
 set -e
 
-# check for varnishapi.m4
-dataroot=$(pkg-config --variable=datarootdir varnishapi 2>/dev/null)
+# check for vinylapi.m4
+dataroot=$(pkg-config --variable=datarootdir vinylapi 2>/dev/null)
 
 if [ -z "${dataroot}" ] ; then
 	cat >&2 <<'EOF'
-Package varnishapi was not found in the pkg-config search path.
-Consider adding the directory containing `varnishapi.pc'
+Package vinylapi was not found in the pkg-config search path.
+Consider adding the directory containing `vinylapi.pc'
 to the PKG_CONFIG_PATH environment variable
 EOF
 	exit 1

@@ -13,7 +13,7 @@ vmod_dns
 ========
 
 ------------------
-Varnish dns Module
+Vinyl dns Module
 ------------------
 
 :Manual section: 3
@@ -51,9 +51,9 @@ crawlers based on the domain name.
 
   *name resolution queries can be slow as in dead slow, slow as can
   be, totally unacceptably slow for a high performance delivery
-  software like Varnish. Typical DNS timeouts in the order of seconds
+  software like Vinyl. Typical DNS timeouts in the order of seconds
   are at least tens of thousands of times longer than typical
-  processing times in varnish. Thus* **extreme care** *should be taken
+  processing times in vinyl. Thus* **extreme care** *should be taken
   when using this vmod*, for example by narrowing calls to dns vmod
   functions to rare cases or heavily rate-limiting them (as with
   ``vmod_vsstrottle``, see
@@ -93,7 +93,7 @@ are::
   make check
   make install
 
-For building against a varnish installation at a custom prefix
+For building against a vinyl installation at a custom prefix
 ``${PREFIX}``, set these environment variables before running the
 above::
 
@@ -118,7 +118,7 @@ STRING resolve(STRING s)
 Converts the string *s* to the first IP number returned by the system
 library function getaddrinfo(3) and returns the result as a string.
 
-This function has been obsoleted by ``std.ip()`` from varnish-cache
+This function has been obsoleted by ``std.ip()`` from vinyl-cache
 and is only provided for backwards compatibility. Other than that, it
 is slightly more efficient if both a string result is required.
 
@@ -174,7 +174,7 @@ SEE ALSO
 ========
 
 * vcl\(7),
-* varnishd\(1)
+* vinyld\(1)
 
 
 COPYRIGHT
