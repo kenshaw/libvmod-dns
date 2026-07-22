@@ -19,8 +19,8 @@ AC_ARG_WITH([rst2man],
 	[RST2MAN="$withval"],
 	[AC_CHECK_PROGS(RST2MAN, [rst2man rst2man.py], [])])
 
-VARNISH_PREREQ([5.2.0])
-VARNISH_VMODS([dns])
+VINYL_PREREQ([9.0.0])
+VINYL_VMODS([dns])
 
 AC_CONFIG_FILES([
 	Makefile
@@ -32,7 +32,7 @@ AC_OUTPUT
 AS_ECHO("
 	==== $PACKAGE_STRING ====
 
-	varnish:      $VARNISH_VERSION
+	vinyl:        $VINYL_VERSION
 	prefix:       $prefix
 	vmoddir:      $vmoddir
 	vcldir:       $vcldir

@@ -1,4 +1,4 @@
-AM_CFLAGS = $(VARNISHAPI_CFLAGS)
+AM_CFLAGS = $(VINYLAPI_CFLAGS)
 
 # Modules
 
@@ -20,13 +20,13 @@ vmod_vcs_version.txt: $(nodist_libvmod_dns_la_SOURCES)
 # Test suite
 
 AM_TESTS_ENVIRONMENT = \
-	PATH="$(abs_builddir):$(VARNISH_TEST_PATH):$(PATH)" \
-	LD_LIBRARY_PATH="$(VARNISH_LIBRARY_PATH)"
+	PATH="$(abs_builddir):$(VINYL_TEST_PATH):$(PATH)" \
+	LD_LIBRARY_PATH="$(VINYL_LIBRARY_PATH)"
 TEST_EXTENSIONS = .vtc
-VTC_LOG_COMPILER = varnishtest -v
+VTC_LOG_COMPILER = vtest -v
 AM_VTC_LOG_FLAGS = \
 	-p vcl_path="$(abs_top_srcdir)/vcl" \
-	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VARNISHAPI_VMODDIR)"
+	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VINYLAPI_VMODDIR)"
 
 TESTS = \
 	vtc/vmod_dns01.vtc \
