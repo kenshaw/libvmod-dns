@@ -28,8 +28,11 @@ AC_ARG_WITH([genhtml],
     [AC_CHECK_PROGS(GENHTML, [genhtml], [])])
 AM_CONDITIONAL(HAVE_GENHTML, [test -n "$GENHTML"])
 
-VINYL_PREREQ([9.0.0])
-VINYL_VMODS([dns])
+VCACHE_REQUIRE(
+	[[vinyl], [9.1.0]],
+	[[varnish], [9.1.0]]
+)
+VCACHE_VMODS([dns])
 
 AM_PROG_AR
 
@@ -61,7 +64,7 @@ AC_OUTPUT
 AS_ECHO("
 	==== $PACKAGE_STRING ====
 
-	vinyl:        $VINYL_VERSION
+	vcache:       ${vcacheapi} $VCACHE_VERSION
 	prefix:       $prefix
 	vmoddir:      $vmoddir
 	vcldir:       $vcldir
