@@ -1,6 +1,6 @@
 vtest "test vmod-dns example given in the documentation"
 
-vinyl v1 -proto "PROXY" -vcl {
+vcache v1 -proto "PROXY" -vcl {
 	import dns;
 
 	backend dummy { .host = "${bad_ip}"; }

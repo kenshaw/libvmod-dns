@@ -1,4 +1,4 @@
-AM_CFLAGS = $(VINYLAPI_CFLAGS)
+AM_CFLAGS = $(VCACHEAPI_CFLAGS)
 
 # Modules
 
@@ -20,13 +20,13 @@ vmod_vcs_version.txt: $(nodist_libvmod_dns_la_SOURCES)
 # Test suite
 
 AM_TESTS_ENVIRONMENT = \
-	PATH="$(abs_builddir):$(VINYL_TEST_PATH):$(PATH)" \
-	LD_LIBRARY_PATH="$(VINYL_LIBRARY_PATH)"
+	PATH="$(abs_builddir):$(VCACHE_TEST_PATH):$(PATH)" \
+	LD_LIBRARY_PATH="$(VCACHE_LIBRARY_PATH)"
 TEST_EXTENSIONS = .vtc
-VTC_LOG_COMPILER = vinyltest -v
+VTC_LOG_COMPILER = vtest -E@VTESTEXT@ -v
 AM_VTC_LOG_FLAGS = \
 	-p vcl_path="$(abs_top_srcdir)/vcl" \
-	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VINYLAPI_VMODDIR)"
+	-p vmod_path="$(abs_builddir)/.libs:$(vmoddir):$(VCACHEAPI_VMODDIR)"
 
 TESTS = \
 	vtc/vmod_dns01.vtc \
